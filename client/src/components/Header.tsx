@@ -22,7 +22,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <div className="text-2xl font-bold text-primary">StreamFlix</div>
+            <div className="text-2xl font-bold text-primary">WatchID</div>
           </Link>
 
           {/* Desktop Navigation */}

@@ -26,7 +26,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
     console.log("Admin login attempt:", { email, password });
 
     setTimeout(() => {
-      if (email === "admin@streamflix.com" && password === "admin123") {
+      if (email === "admin@watchid.com" && password === "admin123") {
         console.log("Admin login successful");
         onLoginSuccess();
       } else {
@@ -45,7 +45,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
           </div>
           <CardTitle className="text-2xl font-bold">Admin Portal</CardTitle>
           <CardDescription>
-            Access the StreamFlix administration panel
+            Access the WatchID administration panel
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -61,7 +61,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@streamflix.com"
+                placeholder="admin@watchid.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -112,7 +112,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
           <div className="mt-6 p-4 bg-muted/50 rounded-lg">
             <p className="text-xs text-muted-foreground mb-2">Demo Credentials:</p>
             <div className="text-sm space-y-1">
-              <p><strong>Email:</strong> admin@streamflix.com</p>
+              <p><strong>Email:</strong> admin@watchid.com</p>
               <p><strong>Password:</strong> admin123</p>
             </div>
           </div>
