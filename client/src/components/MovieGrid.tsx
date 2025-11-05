@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MovieCard from "./MovieCard";
-import FaceVerificationModal from "./FaceVerificationModal";
+import FacialRecognitionOverlay from "./FacialRecognitionOverlay";
 import type { Movie } from "@shared/schema";
 
 interface MovieGridProps {
@@ -41,10 +41,22 @@ export default function MovieGrid({ title, movies }: MovieGridProps) {
         </div>
       </div>
 
-      <FaceVerificationModal
+      <FacialRecognitionOverlay
         isOpen={isVerificationOpen}
         onClose={handleCloseVerification}
-        movie={selectedMovie}
+        title="Age Verification Required"
+        subtitle={`${selectedMovie?.title} • ${selectedMovie?.ageLimit}+ Rating Required`}
+        minAgeRequired={selectedMovie?.ageLimit || 18}
+        onVerificationSuccess={(detectedAge) => {
+          console.log(`Access granted: Age ${detectedAge} verified for ${selectedMovie?.title}`);
+          // Handle successful verification - could redirect to movie player
+          handleCloseVerification();
+        }}
+        onVerificationDenied={(detectedAge, requiredAge) => {
+          console.log(`Access denied: Age ${detectedAge} insufficient for ${selectedMovie?.title} (requires ${requiredAge}+)`);
+          // Handle denied verification - could show alternative content suggestions
+        }}
+        showSimulationControls={true}
       />
     </section>
   );
