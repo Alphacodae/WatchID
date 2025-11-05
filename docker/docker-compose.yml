@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  database:
+    image: mysql:8.0
+    container_name: watchid-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: watchid
+      MYSQL_USER: watchid_user
+      MYSQL_PASSWORD: watchid_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - watchid-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Service
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    container_name: watchid-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/watchid?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: watchid_user
+      SPRING_DATASOURCE_PASSWORD: watchid_pass
+      JWT_SECRET: your-secure-jwt-secret-key-change-in-production
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - watchid-network
+    restart: unless-stopped
+
+  # AI Service
+  ai-service:
+    build:
+      context: ..
+      dockerfile: docker/ai-service.Dockerfile
+    container_name: watchid-ai
+    ports:
+      - "5000:5000"
+    networks:
+      - watchid-network
+    restart: unless-stopped
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    container_name: watchid-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - watchid-network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  watchid-network:
+    driver: bridge
