@@ -1,0 +1,18 @@
+<div (mouseenter)="isHovered = true" (mouseleave)="isHovered = false" style="background:transparent;border-radius:8px;overflow:hidden;">
+  <div style="position:relative;">
+    <img [src]="movie.posterUrl" [alt]="movie.title" style="width:100%;height:auto;display:block;" />
+
+    <div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:white;padding:4px 6px;border-radius:6px;font-size:12px;">{{ movie.ageLimit }}+</div>
+
+    <button (click)="onVerifyClick($event)" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:0;color:white;padding:6px;border-radius:6px;">Verify</button>
+
+    <div *ngIf="isHovered" style="position:absolute;inset:auto 0 0 0;padding:12px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.8));color:white;">
+      <h3 style="margin:0 0 6px;font-size:14px;">{{ movie.title }}</h3>
+      <p style="margin:0 0 8px;font-size:12px;color:#cbd5e1;">{{ movie.description }}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <small style="color:#94a3b8">{{ movie.duration }} • {{ movie.genre }}</small>
+        <button (click)="onWatchClick($event)" style="background:#0ea5e9;color:black;border:0;padding:6px 10px;border-radius:6px;">Watch</button>
+      </div>
+    </div>
+  </div>
+</div>
