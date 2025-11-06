@@ -7,7 +7,7 @@ const mockMovies: Movie[] = [
     id: "1",
     title: "Action Hero",
     description: "An explosive action thriller with non-stop adventure.",
-    posterUrl: "/attached_assets/generated_images/Action_movie_poster_fe80df0b.png",
+    posterUrl: "/attached_assets/generated_images/Action_Hero-Movies.png",
     ageLimit: 16,
     genre: "Action",
     duration: "2h 15m"
@@ -16,7 +16,7 @@ const mockMovies: Movie[] = [
     id: "2",
     title: "Horror Night",
     description: "A spine-chilling horror experience that will keep you on edge.",
-    posterUrl: "/attached_assets/generated_images/Horror_movie_poster_430f4250.png",
+    posterUrl: "/attached_assets/generated_images/Horror_Night- Movies.png",
     ageLimit: 18,
     genre: "Horror",
     duration: "1h 45m"
@@ -25,7 +25,7 @@ const mockMovies: Movie[] = [
     id: "3",
     title: "Love Story",
     description: "A heartwarming romantic tale of love conquering all.",
-    posterUrl: "/attached_assets/generated_images/Romance_movie_poster_36e5950a.png",
+    posterUrl: "/attached_assets/generated_images/Love_Story-Movies.png",
     ageLimit: 13,
     genre: "Romance",
     duration: "2h 5m"

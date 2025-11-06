@@ -2,8 +2,10 @@ import Header from "../components/Header";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Heart, Plus } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function MyList() {
+  const [, setLocation] = useLocation();
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -28,7 +30,7 @@ export default function MyList() {
                   Add movies and shows to your list to watch them later
                 </p>
               </div>
-              <Button className="mt-4">
+              <Button className="mt-4" onClick={() => setLocation("/")}>
                 <Plus className="h-4 w-4 mr-2" />
                 Browse Content
               </Button>

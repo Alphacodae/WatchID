@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,15 +13,11 @@ interface MovieCardProps {
 export default function MovieCard({ movie, onVerifyAge }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleVerifyClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log("Eye button clicked for movie:", movie.title);
-    onVerifyAge(movie);
-  };
-
   const handleWatchClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log("Watch button clicked for movie:", movie.title);
+    // Trigger facial recognition verification before allowing to watch
+    onVerifyAge(movie);
   };
 
   return (
@@ -51,17 +47,6 @@ export default function MovieCard({ movie, onVerifyAge }: MovieCardProps) {
         >
           {movie.ageLimit}+
         </Badge>
-
-        {/* Eye Button - Face Verification */}
-        <Button
-          size="icon"
-          variant="outline"
-          className="absolute top-2 right-2 bg-black/60 border-white/20 hover:bg-black/80 backdrop-blur-sm"
-          onClick={handleVerifyClick}
-          data-testid={`button-verify-${movie.id}`}
-        >
-          <Eye className="h-4 w-4 text-white" />
-        </Button>
 
         {/* Hover Overlay Content */}
         {isHovered && (
