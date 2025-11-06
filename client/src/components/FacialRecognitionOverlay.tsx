@@ -75,29 +75,29 @@ export default function FacialRecognitionOverlay({
       setCameraError(null);
       console.log("Requesting camera access...");
       
-      // In production, uncomment this for real camera access
-      // const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-      //   video: { 
-      //     width: { ideal: 640 },
-      //     height: { ideal: 480 },
-      //     facingMode: 'user'
-      //   } 
-      // });
-      // setStream(mediaStream);
-      // 
-      // if (videoRef.current) {
-      //   videoRef.current.srcObject = mediaStream;
-      //   videoRef.current.onloadedmetadata = () => {
-      //     setCameraReady(true);
-      //   };
-      // }
-
-      // Simulate camera ready for demo
-      setTimeout(() => setCameraReady(true), 500);
+      // Enable real camera access
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: 'user'
+        } 
+      });
+      setStream(mediaStream);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        videoRef.current.onloadedmetadata = () => {
+          setCameraReady(true);
+          console.log("Camera initialized successfully");
+        };
+      }
       
     } catch (error) {
       console.error("Camera access denied:", error);
       setCameraError("Camera access denied. Please allow camera permissions and try again.");
+      // Fallback to simulation mode if camera fails
+      setTimeout(() => setCameraReady(true), 500);
     }
   };
 
@@ -120,9 +120,97 @@ export default function FacialRecognitionOverlay({
     setProgress(0);
     setCameraError(null);
 
-    // Capture frame for analysis (in real implementation)
-    // captureFrame();
+    // Capture frame for analysis
+    const imageBlob = await captureFrameAsBlob();
+    
+    if (imageBlob) {
+      // Send to Python API for age detection
+      await sendToAgeDetectionAPI(imageBlob);
+    } else {
+      // Fallback to simulation if capture fails
+      simulateProcessing();
+    }
+  };
 
+  const captureFrameAsBlob = async (): Promise<Blob | null> => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      
+      if (ctx && video.videoWidth > 0) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        
+        return new Promise((resolve) => {
+          canvas.toBlob((blob) => {
+            console.log("Frame captured:", blob?.size, "bytes");
+            resolve(blob);
+          }, 'image/jpeg', 0.8);
+        });
+      }
+    }
+    return null;
+  };
+
+  const sendToAgeDetectionAPI = async (imageBlob: Blob) => {
+    try {
+      setProgress(10);
+      console.log("Sending image to age detection API...");
+      
+      const formData = new FormData();
+      formData.append('file', imageBlob, 'capture.jpg');
+      
+      setProgress(30);
+      
+      // Call your Python FastAPI server
+      const response = await fetch('http://localhost:8000/predict-age/', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      setProgress(60);
+      
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+      
+      const result = await response.json();
+      console.log("Age detection result:", result);
+      
+      setProgress(90);
+      
+      // Extract detected age from response
+      const detectedAgeValue = result.predicted_age || result.age || null;
+      
+      if (detectedAgeValue !== null) {
+        setProgress(100);
+        setTimeout(() => {
+          setDetectedAge(detectedAgeValue);
+          const isAccessGranted = detectedAgeValue >= minAgeRequired;
+          setResult(isAccessGranted ? "success" : "denied");
+          setStep("result");
+
+          if (isAccessGranted) {
+            onVerificationSuccess?.(detectedAgeValue);
+          } else {
+            onVerificationDenied?.(detectedAgeValue, minAgeRequired);
+          }
+        }, 300);
+      } else {
+        throw new Error('No age detected in response');
+      }
+      
+    } catch (error) {
+      console.error("Age detection API error:", error);
+      setCameraError("Failed to detect age. Using simulation mode...");
+      // Fallback to simulation
+      simulateProcessing();
+    }
+  };
+
+  const simulateProcessing = () => {
     // Simulate AI processing with more realistic progress
     const processingSteps = [
       "Initializing camera...",
@@ -180,7 +268,9 @@ export default function FacialRecognitionOverlay({
 
   const retryVerification = () => {
     resetState();
-    setCameraReady(true); // For demo purposes
+    if (!stream) {
+      initializeCamera(); // Reinitialize camera if not available
+    }
   };
 
   const captureFrame = () => {
