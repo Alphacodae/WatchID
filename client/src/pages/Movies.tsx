@@ -1,6 +1,7 @@
-import { useState } from "react";  // ← ADD THIS
+import { useState } from "react";
 import Header from "../components/Header";
 import MovieGrid from "../components/MovieGrid";
+import VideoPlayer from "../components/VideoPlayer";
 import type { Movie } from "@shared/schema";
 import FacialRecognitionOverlay from "@/components/FacialRecognitionOverlay"; 
 
@@ -53,9 +54,9 @@ const mockMovies: Movie[] = [
 ];
 
 export default function Movies() {
-
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
 
   const handleVerifyAge = (movie: Movie) => {
     setSelectedMovie(movie);
@@ -64,6 +65,16 @@ export default function Movies() {
 
   const closeVerification = () => {
     setIsVerificationOpen(false);
+    setSelectedMovie(null);
+  };
+
+  const startVideo = () => {
+    setIsVerificationOpen(false);
+    setIsVideoPlayerOpen(true);
+  };
+
+  const closeVideo = () => {
+    setIsVideoPlayerOpen(false);
     setSelectedMovie(null);
   };
   return (
@@ -88,14 +99,23 @@ export default function Movies() {
               minAgeRequired={selectedMovie.ageLimit}
               onVerificationSuccess={(age) => {
                 console.log("Access granted for", selectedMovie.title, "Age:", age);
-                // closeVerification();
-                // TODO: Navigate to player or play video
+                startVideo();
               }}
               onVerificationDenied={(age, req) => {
                 console.log("Access denied. Age:", age, "Required:", req);
-                // closeVerification();
+                closeVerification();
               }}
               showSimulationControls={process.env.NODE_ENV === "development"}
+            />
+          )}
+
+          {/* Video Player */}
+          {selectedMovie && (
+            <VideoPlayer
+              isOpen={isVideoPlayerOpen}
+              onClose={closeVideo}
+              title={selectedMovie.title}
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
             />
           )}
         </div>

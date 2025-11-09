@@ -1,5 +1,8 @@
+import { useState } from "react";
 import Header from "../components/Header";
 import MovieGrid from "../components/MovieGrid";
+import VideoPlayer from "../components/VideoPlayer";
+import FacialRecognitionOverlay from "@/components/FacialRecognitionOverlay";
 import type { Movie } from "@shared/schema";
 
 const mockTVShows: Movie[] = [
@@ -51,6 +54,30 @@ const mockTVShows: Movie[] = [
 ];
 
 export default function TVShows() {
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+
+  const handleVerifyAge = (movie: Movie) => {
+    setSelectedMovie(movie);
+    setIsVerificationOpen(true);
+  };
+
+  const closeVerification = () => {
+    setIsVerificationOpen(false);
+    setSelectedMovie(null);
+  };
+
+  const startVideo = () => {
+    setIsVerificationOpen(false);
+    setIsVideoPlayerOpen(true);
+  };
+
+  const closeVideo = () => {
+    setIsVideoPlayerOpen(false);
+    setSelectedMovie(null);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -62,7 +89,37 @@ export default function TVShows() {
               Binge-watch your favorite series and discover new ones
             </p>
           </div>
-          <MovieGrid title="All TV Shows" movies={mockTVShows} />
+          <MovieGrid title="All TV Shows" movies={mockTVShows} onVerifyAge={handleVerifyAge} />
+
+          {/* Facial Recognition Overlay */}
+          {selectedMovie && (
+            <FacialRecognitionOverlay
+              isOpen={isVerificationOpen}
+              onClose={closeVerification}
+              title={`Age Verification: ${selectedMovie.title}`}
+              subtitle={`Rated ${selectedMovie.ageLimit}+ • Face scan required`}
+              minAgeRequired={selectedMovie.ageLimit}
+              onVerificationSuccess={(age) => {
+                console.log("Access granted for", selectedMovie.title, "Age:", age);
+                startVideo();
+              }}
+              onVerificationDenied={(age, req) => {
+                console.log("Access denied. Age:", age, "Required:", req);
+                closeVerification();
+              }}
+              showSimulationControls={true}
+            />
+          )}
+
+          {/* Video Player */}
+          {selectedMovie && (
+            <VideoPlayer
+              isOpen={isVideoPlayerOpen}
+              onClose={closeVideo}
+              title={selectedMovie.title}
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            />
+          )}
         </div>
       </main>
     </div>

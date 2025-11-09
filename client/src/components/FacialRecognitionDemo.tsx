@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import FacialRecognitionOverlay from "./FacialRecognitionOverlay";
+import VideoPlayer from "./VideoPlayer";
 import { Eye, Play } from "lucide-react";
 
 export default function FacialRecognitionDemo() {
@@ -12,6 +13,7 @@ export default function FacialRecognitionDemo() {
     minAge: 18,
     scenario: ""
   });
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
 
   const openOverlay = (scenario: string, title: string, subtitle: string, minAge = 18) => {
     setOverlayConfig({
@@ -27,12 +29,23 @@ export default function FacialRecognitionDemo() {
     setOverlayConfig(prev => ({ ...prev, isOpen: false }));
   };
 
+  const startVideo = () => {
+    setOverlayConfig(prev => ({ ...prev, isOpen: false }));
+    setIsVideoPlayerOpen(true);
+  };
+
+  const closeVideo = () => {
+    setIsVideoPlayerOpen(false);
+  };
+
   const handleSuccess = (detectedAge: number) => {
     console.log(`Verification successful for ${overlayConfig.scenario}: Age ${detectedAge}`);
+    startVideo();
   };
 
   const handleDenied = (detectedAge: number, requiredAge: number) => {
     console.log(`Verification denied for ${overlayConfig.scenario}: Age ${detectedAge} < ${requiredAge}`);
+    closeOverlay();
   };
 
   return (
@@ -136,6 +149,13 @@ export default function FacialRecognitionDemo() {
           onVerificationSuccess={handleSuccess}
           onVerificationDenied={handleDenied}
           showSimulationControls={true}
+        />
+
+        <VideoPlayer
+          isOpen={isVideoPlayerOpen}
+          onClose={closeVideo}
+          title={`Demo: ${overlayConfig.scenario}`}
+          src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
         />
       </div>
     </div>

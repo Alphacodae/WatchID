@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import MovieGrid from "@/components/MovieGrid";
+import VideoPlayer from "@/components/VideoPlayer";
 import type { Movie } from "@shared/schema";
 import FacialRecognitionOverlay from "@/components/FacialRecognitionOverlay"; 
 import actionPoster from "@assets/generated_images/Action_movie_poster_fe80df0b.png"
@@ -101,10 +102,26 @@ const newReleases: Movie[] = [
 export default function Home() {
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
 
   const handleVerifyAge = (movie: Movie) => {
     setSelectedMovie(movie);
     setIsVerificationOpen(true);
+  };
+
+  const closeVerification = () => {
+    setIsVerificationOpen(false);
+    setSelectedMovie(null);
+  };
+
+  const startVideo = () => {
+    setIsVerificationOpen(false);
+    setIsVideoPlayerOpen(true);
+  };
+
+  const closeVideo = () => {
+    setIsVideoPlayerOpen(false);
+    setSelectedMovie(null);
   };
 
   return (
@@ -133,26 +150,29 @@ export default function Home() {
       {selectedMovie && (
         <FacialRecognitionOverlay
           isOpen={isVerificationOpen}
-          onClose={() => {
-            // setIsVerificationOpen(false);
-            // setSelectedMovie(null);
-          }}
+          onClose={closeVerification}
           title={`Age Verification for ${selectedMovie.title}`}
           subtitle={`This content is rated ${selectedMovie.ageLimit}+. Position your face for verification.`}
           minAgeRequired={selectedMovie.ageLimit}
           onVerificationSuccess={(detectedAge) => {
             console.log(`Verification successful for ${selectedMovie.title}. Detected age: ${detectedAge}. Playing movie...`);
-            // TODO: Add logic to play the movie (e.g., navigate to a player page or embed a video)
-            // setIsVerificationOpen(false);
-            // setSelectedMovie(null);
+            startVideo();
           }}
           onVerificationDenied={(detectedAge, required) => {
             console.log(`Verification denied for ${selectedMovie.title}. Detected age: ${detectedAge} (required: ${required}).`);
-            // Optionally show a toast or alert here
-            // setIsVerificationOpen(false);
-            // setSelectedMovie(null);
+            closeVerification();
           }}
-          showSimulationControls={false} // Set to false for production; true for testing
+          showSimulationControls={true} // Set to false for production; true for testing
+        />
+      )}
+
+      {/* Video Player */}
+      {selectedMovie && (
+        <VideoPlayer
+          isOpen={isVideoPlayerOpen}
+          onClose={closeVideo}
+          title={selectedMovie.title}
+          src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
         />
       )}
     </div>
